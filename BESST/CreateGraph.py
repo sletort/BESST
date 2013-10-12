@@ -21,6 +21,7 @@
 
 
 import sys
+import os
 from collections import defaultdict
 from math import pi
 from time import time
@@ -406,6 +407,21 @@ def GiveScoreOnEdges(G, Scaffolds, small_scaffolds, Contigs, param, Information,
             except KeyError:
                 sys.stderr.write(str(G[edge[0]][edge[1]]) + ' ' + str(Scaffolds[edge[0][0]].s_length) + ' ' + str(Scaffolds[edge[1][0]].s_length))
     print >> Information, 'Number of significantly spurious edges:', cnt_sign
+
+    if param.development:
+        tempout = open(os.path.join(param.output_directory, 'besst_edges.txt'), 'w')
+        for edge in G.edges():
+            if G[edge[0]][edge[1]]['nr_links'] != None:
+                try:
+                    c1 = Scaffolds[edge[0][0]].contigs[0].name
+                except KeyError:
+                    c1 = small_scaffolds[edge[0][0]].contigs[0].name
+                try:
+                    c2 = Scaffolds[edge[1][0]].contigs[0].name
+                except KeyError:
+                    c2 = small_scaffolds[edge[1][0]].contigs[0].name
+
+                print >> tempout, c1 + '\t' + c2 + '\t' + str(G[edge[0]][edge[1]]['nr_links']) + '\t' + str(G[edge[0]][edge[1]]['score'])
 
     return()
 

@@ -285,8 +285,6 @@ args = parser.parse_args()
 errorhandle.check_module('mathstats')
 errorhandle.parse_check(args, parser)
 
-if args.devel:
-    import guppy
 
 
 if args.plots:
@@ -303,7 +301,4 @@ if args.plots:
 
 main(args)
 
-if args.devel:
-    h = guppy.hpy()
-    print h.heap()
 
