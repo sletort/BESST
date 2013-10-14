@@ -38,7 +38,8 @@ class parameter(object):
                  parameter_detect_haplotype=None, parameter_detect_duplicate=None,
                  parameter_gff_file=None, parameter_information_file=None,
                  parameter_fosmidpool=None, parameter_extend_paths=None,
-                 parameter_development=None, parameter_plots=None, parameter_path_threshold=None):
+                 parameter_development=None, parameter_plots=None, parameter_path_threshold=None,
+                 parameter_scorethreshold=None):
 
         # Library information
         # Contig information
@@ -75,6 +76,7 @@ class parameter(object):
         self.development = parameter_development
         self.plots = parameter_plots
         self.path_threshold = parameter_path_threshold
+        self.scorethreshold = parameter_scorethreshold
 
 
 class counters(object):

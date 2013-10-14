@@ -96,6 +96,7 @@ def main(options):
     #iterate over libraries
     param.first_lib = True
     param.path_threshold = options.path_threshold
+    param.scorethreshold = options.scorethreshold
     for i in xrange(len(options.bamfiles)):
         start = time()
         param.bamfile = options.bamfiles[i]
@@ -111,7 +112,7 @@ def main(options):
         param.hapl_threshold = options.haplthreshold
         param.detect_haplotype = options.haplotype
         param.detect_duplicate = options.duplicate
-        param.fosmidpool = options.fosmidpool
+        #param.fosmidpool = options.fosmidpool
         param.extend_paths = options.extendpaths
         print >> Information, '\nPASS ' + str(i + 1) + '\n\n'
         print 'Creating contig graph with library: ', param.bamfile
@@ -208,6 +209,9 @@ libstats.add_argument("-z", dest="covcutoff", type=int, nargs='+',
 parameters.add_argument("-w", dest="relweight", type=int, default=3,
                   help="Threshold value for the relative weight of an edge (deprecated)")
 
+parameters.add_argument("-t", dest="scorethreshold", type=float, default=0.5,
+                  help="Lower threshold value for a score to discard a link (default = 0.5)")
+
 parameters.add_argument("-T", dest="threshold", type=int, nargs='+',
                   help="Threshold value filter out reads that are mapped too far apart given insert size. ")
 
@@ -268,13 +272,11 @@ other.add_argument('--version', action='version', version='%(prog)s 1.0.4.2')
 
 
 #TEMPORARY parameters here, remove after spruce assembly
-other.add_argument("-t", dest="transcriptalignfile",
-                  help="file of contigs", type=str)
+#other.add_argument("-t", dest="transcriptalignfile",help = "file of contigs", type = str)
 
-other.add_argument("-p", dest="fosmidpool", default=None,
-                  help="""Specify that data comes from a fosmid pool. This parameter sets the number of
-                  links that the second strongest link must have in order to not do any scaffolding
-                  with the region.""", type=int)
+#other.add_argument("-p", dest="fosmidpool", default=None,help = """Specify that data comes from a fosmid pool. This parameter sets the number of
+#                  links that the second strongest link must have in order to not do any scaffolding
+#                  with the region.""", type = int)
 
 
 if len(sys.argv) == 1:

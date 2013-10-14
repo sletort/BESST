@@ -23,15 +23,15 @@ class Alignment(object):
 def AlignContigs(ref, query, out):
     outpath = os.path.join(out, 'truth.agf')
     #### Do nucmer alignment plus tiling of contigs onto genome###
-    print "nucmer -mum -c 65 -p nucmer " + ref + ' ' + query
-    os.popen("nucmer -mum -c 65 -p nucmer " + ref + ' ' + query)
+    print "nucmer -mum -p nucmer " + ref + ' ' + query
+    os.popen("nucmer -mum -banded -D 20 -l 15 -p nucmer " + ref + ' ' + query)
     try:
         os.mkdir(out)
     except OSError:
         #directory is already created
         pass
     print "show-tiling nucmer.delta"
-    os.popen("show-tiling -c -g -1 nucmer.delta > " + outpath)
+    os.popen("show-tiling -c -g -1 -v 85 nucmer.delta > " + outpath)
     os.remove('nucmer.delta')
     return()
 
@@ -57,7 +57,7 @@ def get_true_edges(agf_file, out, max_distance):
         length = int(columns[3])
         end_coordinate = int(columns[1])
         current_coordinate = int(columns[0])
-        if float(align_cov) > 90 and float(perc_id) > 90:
+        if float(align_cov) > 80 and float(perc_id) > 80:
             a = Alignment(name, length, end_coordinate, gap, align_cov, perc_id)
 
             for al_obj in alignment_dict:
