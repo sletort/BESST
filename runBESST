@@ -66,6 +66,9 @@ def main(options):
     from BESST import libmetrics
     from BESST.diploid import get_haplotype_regions
 
+    from BESST.filter_contigs import filter_contigs
+
+
     tot_start = time()
     Contigs = {} # contig dict that stores contig objects 
     Scaffolds = {}     # scaffold dict with contig objects for easy fetching of all contigs in a scaffold
@@ -77,7 +80,9 @@ def main(options):
     param.rel_weight = options.relweight
     param.multiprocess = options.multiprocess
     param.development = options.devel
-    options.output = options.output + '/BESST_output'
+    options.output = os.path.join(options.output, 'BESST_output')
+
+    filter_contigs.main(options.bamfiles[0], open(os.path.join(options.output, 'breakpoints.txt'), 'w'))
 
     mkdir_p(options.output)
     if options.plots:

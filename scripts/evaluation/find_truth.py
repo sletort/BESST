@@ -24,15 +24,18 @@ def AlignContigs(ref, query, out):
     outpath = os.path.join(out, 'truth.agf')
     #### Do nucmer alignment plus tiling of contigs onto genome###
     print "nucmer -mum -p nucmer " + ref + ' ' + query
-    os.popen("nucmer -mum -banded -D 20 -l 15 -p nucmer " + ref + ' ' + query)
+    os.popen("nucmer -mum -banded -D 20 -l 20 -p nucmer " + ref + ' ' + query)
     try:
         os.mkdir(out)
     except OSError:
         #directory is already created
         pass
     print "show-tiling nucmer.delta"
-    os.popen("show-tiling -c -g -1 -v 85 nucmer.delta > " + outpath)
-    os.remove('nucmer.delta')
+    #TODO:Set - t option !! How will output be??
+    os.popen("show-tiling -c -g -1 -v 80 -t /tmp/tigr.txt nucmer.delta > " + outpath)
+    #" + os.path.join(out, 'tigr') + "
+    os.rename('nucmer.delta', out + 'nucmer.delta')
+    #os.remove('nucmer.delta')
     return()
 
 def get_true_edges(agf_file, out, max_distance):

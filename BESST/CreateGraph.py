@@ -98,6 +98,9 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
         except ValueError:
             continue
 
+        if contig1 == 'velvet.93.13' and contig2 == 'velvet.93.13':
+            if not alignedread.is_unmapped and not alignedread.mate_is_unmapped:
+                print alignedread.pos, alignedread.mpos, abs(alignedread.tlen), alignedread.is_proper_pair, alignedread.mapq, alignedread.is_duplicate #, alignedread.pos, alignedread.mpos, alignedread.flag
         #TODO:Repeats (and haplotypes) may have been singled out, we need this statement (or a smarter version of it)
         if (contig1 in Contigs or contig1 in small_contigs) and (contig2 in Contigs or contig2 in small_contigs):
             pass
@@ -133,7 +136,9 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
 
         ## add to coverage computation if contig is still in the list of considered contigs
         #print contig1, contig2, alignedread.is_read2
-        cont_aligned_len[contig1][0] += alignedread.rlen
+        if alignedread.alen:
+            cont_aligned_len[contig1][0] += alignedread.alen
+
         if contig1 != contig2 and alignedread.mapq == 0:
             counter.non_unique += 1  # check how many non unique reads out of the useful ones (mapping to two different contigs)
 
@@ -203,6 +208,7 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
             small_contigs[contig].coverage = cont_coverage
             cov.append(cont_coverage)
             leng.append(small_contigs[contig].length)
+        print >> Information, contig, cont_coverage, float(cont_aligned_len[contig][1])
 
 
         sum_x += cont_coverage
@@ -225,7 +231,7 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
     score.GiveScoreOnEdges(G, Scaffolds, small_scaffolds, Contigs, param, Information, plot)
 
     #plot = 'G_prime'
-    #score.GiveScoreOnEdges(G_prime, Scaffolds, small_scaffolds, Contigs, param, Information, plot)
+    score.GiveScoreOnEdges(G_prime, Scaffolds, small_scaffolds, Contigs, param, Information, plot)
 
 
     #Remove all edges with link support less than 3 to be able to compute statistics: 
