@@ -20,6 +20,8 @@ class BasePairTracker:
 
         # Handles base pairs that become inactive
         self.handle_bp = handle_bp
+        self.curr_contig = None
+
 
     ##
     # Determines whether we should visit a read or not. In
@@ -124,8 +126,20 @@ class BasePairStats:
 #
 def find_soft_clipped_base_pairs(bam_file, handle_bp):
     base_pair_tracker = BasePairTracker(handle_bp)
+    first_contig = True
+    refs = dict(zip(bam_file.references, bam_file.lengths))
     for read in bam_file:
         if base_pair_tracker.accept(read):
+            if read.tid != base_pair_tracker.curr_contig:
+                base_pair_tracker.finish()
+                base_pair_tracker.handle_bp(read.tid, refs[bam_file.getrname(read.tid)])
+                base_pair_tracker.curr_contig = read.tid
+
+            if first_contig:
+                base_pair_tracker.handle_bp(read.tid, refs[bam_file.getrname(read.tid)])
+                base_pair_tracker.curr_contig = read.tid
+                first_contig = False
+
             base_pair_tracker.visit(read)
 
     base_pair_tracker.finish()

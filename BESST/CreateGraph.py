@@ -98,9 +98,6 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
         except ValueError:
             continue
 
-        if contig1 == 'velvet.93.13' and contig2 == 'velvet.93.13':
-            if not alignedread.is_unmapped and not alignedread.mate_is_unmapped:
-                print alignedread.pos, alignedread.mpos, abs(alignedread.tlen), alignedread.is_proper_pair, alignedread.mapq, alignedread.is_duplicate #, alignedread.pos, alignedread.mpos, alignedread.flag
         #TODO:Repeats (and haplotypes) may have been singled out, we need this statement (or a smarter version of it)
         if (contig1 in Contigs or contig1 in small_contigs) and (contig2 in Contigs or contig2 in small_contigs):
             pass

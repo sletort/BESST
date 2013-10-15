@@ -38,9 +38,12 @@ class BreakPointWriter(object):
     # @param pos Position of the base pair.
     # @param bp_stats Stats of the base pair.
     # 
-    def __call__(self, tid, pos, bp_stats):
+    def __call__(self, tid, pos, bp_stats=None):
         event = None
-        if bp_stats.num_starting >= self.num_clipped_threshold:
+        if bp_stats == None:
+            self.output_file.write(">{0}\t{1}\n".format(self.bam_file.getrname(tid), pos))
+
+        elif bp_stats.num_starting >= self.num_clipped_threshold:
             event = ("start", pos)
         elif bp_stats.num_ending >= self.num_clipped_threshold:
             event = ("end", pos)

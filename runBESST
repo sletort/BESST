@@ -82,7 +82,7 @@ def main(options):
     param.development = options.devel
     options.output = os.path.join(options.output, 'BESST_output')
 
-    filter_contigs.main(options.bamfiles[0], open(os.path.join(options.output, 'breakpoints.txt'), 'w'))
+    filter_contigs.main(options.bamfiles[0], os.path.join(options.output, 'breakpoints.txt'))
 
     mkdir_p(options.output)
     if options.plots:
