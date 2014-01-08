@@ -20,6 +20,7 @@
     '''
 
 import sys
+import os
 from collections import defaultdict
 import time
 
@@ -75,7 +76,7 @@ def Algorithm(G, G_prime, Contigs, small_contigs, Scaffolds, small_scaffolds, In
 
     G = RemoveIsolatedContigs(G, Information)     #step1
     plot = 'G'
-    RemoveAmbiguousRegionsUsingScore(G, G_prime, Information, param, plot) #step2
+    RemoveAmbiguousRegionsUsingScore(G, G_prime, Information, param, plot,Scaffolds, small_scaffolds) #step2
     G = RemoveIsolatedContigs(G, Information) #there are probably new isolated nodes created from step 2
     G, Contigs, Scaffolds = RemoveLoops(G, G_prime, Scaffolds, Contigs, Information, param)    #step4    
     #The contigs that made it to proper scaffolds
@@ -141,107 +142,97 @@ def partition(pred, iterable):
             falses.append(item)
     return trues, falses
 
-def remove_edges(G, G_prime, Information, param, node, score_chosen_obs, non_zero_score_removed_obs, edge_score_to_zero, record_decision):
+def remove_edges(G, G_prime, Information, param, node, score_chosen_obs, non_zero_score_removed_obs, edge_score_to_zero, record_decision,Scaffolds,small_scaffolds, tempout_sc,tempout_nr,tempout_sc_not,tempout_nr_not):
     nbrs = G.neighbors(node)
-
-
-    #Remove ambiguous edges
     filter_nbrs = filter(lambda nbr: 0 < G[node][nbr]['nr_links'] , nbrs) # remove other side of contig (has no "links")
-    score_list_temp = sorted(map(lambda nbr: (G[node][nbr]['score'], nbr), filter_nbrs)) # sort list of scores for neighbors
-    non_zero_score_edges, zero_score_edges = partition(lambda nbr: 0 < G[node][nbr[1]]['score'], score_list_temp) # Split list into 0-scoring and non-0-scoring edges
 
+    # comparison
+    if param.development and filter_nbrs:
+        filter_nbrs = filter(lambda nbr: 3 < G[node][nbr]['nr_links'] , nbrs)
+        if not filter_nbrs:
+            return
+        score_list = sorted(map(lambda nbr: (G[node][nbr]['score'], nbr), filter_nbrs)) 
+        nr_link_list = sorted(map(lambda nbr: (G[node][nbr]['nr_links'], nbr), filter_nbrs))
+        assert len(score_list) == len(nr_link_list)
+        chosen_score = score_list[-1][1]
+        chosen_nr_links = nr_link_list[-1][1]
+        #sys.stderr.write('score_list:'+ str(score_list))
+        #sys.stderr.write('nr link list'+ str(nr_link_list))
 
-    #remove all zero score edges
-    remove_zero_score_edges = map(lambda item: (node, item[1]) , zero_score_edges)
-    G.remove_edges_from(remove_zero_score_edges)
-    if param.plots:
-        for item in zero_score_edges:
-            edge_score_to_zero.append(item[0])
+        try:
+            c1 = Scaffolds[node[0]].contigs[0].name
+        except KeyError:
+            return
+        try:
+            c2_score = Scaffolds[chosen_score[0]].contigs[0].name
+            c2_nr_links = Scaffolds[chosen_nr_links[0]].contigs[0].name
+        except KeyError:
+            return
 
-    if param.extend_paths:
-        try: #we might have been removed this edge from G_prime when we did individual filtering of G_prime in CreateGraph module
-            G_prime.remove_edges_from(remove_zero_score_edges)
-        except nx.exception.NetworkXError:
-            pass
+        print >> tempout_sc, c1 + '\t' + c2_score + '\t' + str(G[node][chosen_score]['gap']) + '\t' + str(G[node][chosen_score]['nr_links']) + '\t' + str(G[node][chosen_score]['score']) + '\t' + str(G[node][chosen_score]['nr_links'] * G[node][chosen_score]['score'])
+        print >> tempout_nr, c1 + '\t' + c2_nr_links + '\t' + str(G[node][chosen_nr_links]['gap']) + '\t' + str(G[node][chosen_nr_links]['nr_links']) + '\t' + str(G[node][chosen_nr_links]['score']) + '\t' + str(G[node][chosen_nr_links]['nr_links'] * G[node][chosen_nr_links]['score'])
+        for not_chosen_score in score_list[:-1]:
+            try:
+                c2 = Scaffolds[not_chosen_score[1][0]].contigs[0].name
+            except KeyError:
+                break
+            not_chosen_score = not_chosen_score[1]
+            print >> tempout_sc_not, c1 + '\t' + c2 + '\t' + str(G[node][not_chosen_score]['gap']) + '\t' + str(G[node][not_chosen_score]['nr_links']) + '\t' + str(G[node][not_chosen_score]['score']) + '\t' + str(G[node][not_chosen_score]['nr_links'] * G[node][not_chosen_score]['score'])
 
-    # Remove lower non zero score edges
-    if len(non_zero_score_edges) > 1:
-        if non_zero_score_edges[-2][0] / non_zero_score_edges[-1][0] > 0.9:
-            print >> Information, 'SCORES AMBVIVALENT', non_zero_score_edges[-1][0], non_zero_score_edges[-2][0]
-            remove_non_zero_edges = map(lambda item: (node, item[1]) , non_zero_score_edges) # Edges that does not have a score of 0 but are not the highest scoring one in an ambigous region
-        else:
-            remove_non_zero_edges = map(lambda item: (node, item[1]) , non_zero_score_edges[:-1]) # Edges that does not have a score of 0 but are not the highest scoring one in an ambigous region
-
-        G.remove_edges_from(remove_non_zero_edges) # remove the lower scoring edges
-        if param.extend_paths:
-            try: #we might have been removed this edge from G_prime when we did individual filtering of G_prime in CreateGraph module
-                G_prime.remove_edges_from(remove_non_zero_edges)
-            except nx.exception.NetworkXError:
-                pass
-
-    if param.plots:
-        if len(non_zero_score_edges) > 0:
-            if record_decision:
-                score_chosen_obs.append(non_zero_score_edges[-1][0])
-            for item in non_zero_score_edges[:-1]:
-                non_zero_score_removed_obs.append(item[0])
-
-
-
-
-#    if len(nbrs) > 2:
-#        score_list = []
-#        for nbr in nbrs:
-#            if G[node][nbr]['nr_links']:
-#                if 'score' not in G[node][nbr]:
-#                    sys.stderr.write(str(G[node][nbr]))
-#                score_list.append((G[node][nbr]['score'], nbr))
-#
-#        score_list.sort()
-#
-#        #print 'Assert:', score_list_temp == score_list
-#
-#        if score_list[-1][0] > 0:
-#        ### save the dominating link edge on this side of the contig
-#            nr_nbrs = len(score_list)
-#            for i in xrange(0, nr_nbrs - 1):
-#                G.remove_edge(node, score_list[i][1])
-#                if param.extend_paths:
-#                    try: #we might have been removed this edge from G_prime when we did individual filtering of G_prime in CreateGraph module
-#                        G_prime.remove_edge(node, score_list[i][1])
-#                    except nx.exception.NetworkXError:
-#                        pass
-#        else:
-#            nr_nbrs = len(score_list)
-#            for i in xrange(0, nr_nbrs):
-#                G.remove_edge(node, score_list[i][1])
-#                if param.extend_paths:
-#                    try: #we might have been removed this edge from G_prime when we did individual filtering of G_prime in CreateGraph module
-#                        G_prime.remove_edge(node, score_list[i][1])
-#                    except nx.exception.NetworkXError:
-#                        pass
-#        #counter1 += 1
-#    else:
-#        for nbr in nbrs:
-#            if G[node][nbr]['nr_links']:
-#                if 'score' not in G[node][nbr]:
-#                    sys.stderr.write(str(G[node][nbr]))
-#                if G[node][nbr]['score'] > 0:
-#                    pass
-#                else:
-#                    G.remove_edge(node, nbr)
-#                    if param.extend_paths:
-#                        try: #we might have been removed this edge from G_prime when we did individual filtering of G_prime in CreateGraph module
-#                            G_prime.remove_edge(node, nbr)
-#                        except nx.exception.NetworkXError:
-#                            pass
+        for not_chosen_nr_links in nr_link_list[:-1]:
+            try:
+                c2 = Scaffolds[not_chosen_nr_links[1][0]].contigs[0].name
+            except KeyError:
+                break            
+            not_chosen_nr_links = not_chosen_nr_links[1] 
+            print >> tempout_nr_not, c1 + '\t' + c2 + '\t' + str(G[node][not_chosen_nr_links]['gap']) + '\t' + str(G[node][not_chosen_nr_links]['nr_links']) + '\t' + str(G[node][not_chosen_nr_links]['score']) + '\t' + str(G[node][not_chosen_nr_links]['nr_links'] * G[node][not_chosen_nr_links]['score'])
 
 
 
+
+    # #Remove ambiguous edges
+    # score_list_temp = sorted(map(lambda nbr: (G[node][nbr]['score'], nbr), filter_nbrs)) # sort list of scores for neighbors
+    # non_zero_score_edges, zero_score_edges = partition(lambda nbr: 0 < G[node][nbr[1]]['score'], score_list_temp) # Split list into 0-scoring and non-0-scoring edges
+
+
+    # #remove all zero score edges
+    # remove_zero_score_edges = map(lambda item: (node, item[1]) , zero_score_edges)
+    # G.remove_edges_from(remove_zero_score_edges)
+    # if param.plots:
+    #     for item in zero_score_edges:
+    #         edge_score_to_zero.append(item[0])
+
+    # if param.extend_paths:
+    #     try: #we might have been removed this edge from G_prime when we did individual filtering of G_prime in CreateGraph module
+    #         G_prime.remove_edges_from(remove_zero_score_edges)
+    #     except nx.exception.NetworkXError:
+    #         pass
+
+    # # Remove lower non zero score edges
+    # if len(non_zero_score_edges) > 1:
+    #     if non_zero_score_edges[-2][0] / non_zero_score_edges[-1][0] > 0.9:
+    #         print >> Information, 'SCORES AMBVIVALENT', non_zero_score_edges[-1][0], non_zero_score_edges[-2][0]
+    #         remove_non_zero_edges = map(lambda item: (node, item[1]) , non_zero_score_edges) # Edges that does not have a score of 0 but are not the highest scoring one in an ambigous region
+    #     else:
+    #         remove_non_zero_edges = map(lambda item: (node, item[1]) , non_zero_score_edges[:-1]) # Edges that does not have a score of 0 but are not the highest scoring one in an ambigous region
+
+    #     G.remove_edges_from(remove_non_zero_edges) # remove the lower scoring edges
+    #     if param.extend_paths:
+    #         try: #we might have been removed this edge from G_prime when we did individual filtering of G_prime in CreateGraph module
+    #             G_prime.remove_edges_from(remove_non_zero_edges)
+    #         except nx.exception.NetworkXError:
+    #             pass
+
+    # if param.plots:
+    #     if len(non_zero_score_edges) > 0:
+    #         if record_decision:
+    #             score_chosen_obs.append(non_zero_score_edges[-1][0])
+    #         for item in non_zero_score_edges[:-1]:
+    #             non_zero_score_removed_obs.append(item[0])
 
     return()
 
-def RemoveAmbiguousRegionsUsingScore(G, G_prime, Information, param, plot):
+def RemoveAmbiguousRegionsUsingScore(G, G_prime, Information, param, plot,Scaffolds,small_scaffolds):
     score_chosen_obs = []
     non_zero_score_removed_obs = []
     edge_score_to_zero = []
@@ -252,10 +243,14 @@ def RemoveAmbiguousRegionsUsingScore(G, G_prime, Information, param, plot):
 
     link_edges = filter(lambda x: 'score' in x[2], G.edges(data=True))
     edge_scores_sorted = sorted(link_edges, key=lambda x: x[2]['score'], reverse=True)
-
-    for edge in edge_scores_sorted:
-        remove_edges(G, G_prime, Information, param, edge[0], score_chosen_obs, non_zero_score_removed_obs, edge_score_to_zero, True)
-        remove_edges(G, G_prime, Information, param, edge[1], score_chosen_obs, non_zero_score_removed_obs, edge_score_to_zero, False)
+    if param.development:
+        tempout_sc = open(os.path.join(param.output_directory, 'score_chosen.txt'), 'w')
+        tempout_nr = open(os.path.join(param.output_directory, 'nr_links_chosen.txt'), 'w')
+        tempout_sc_not = open(os.path.join(param.output_directory, 'score_not_chosen.txt'), 'w')
+        tempout_nr_not = open(os.path.join(param.output_directory, 'nr_links_not_chosen.txt'), 'w')
+    for edge in edge_scores_sorted: 
+        remove_edges(G, G_prime, Information, param, edge[0], score_chosen_obs, non_zero_score_removed_obs, edge_score_to_zero, True, Scaffolds,small_scaffolds, tempout_sc,tempout_nr,tempout_sc_not,tempout_nr_not)
+        remove_edges(G, G_prime, Information, param, edge[1], score_chosen_obs, non_zero_score_removed_obs, edge_score_to_zero, False, Scaffolds,small_scaffolds, tempout_sc,tempout_nr,tempout_sc_not,tempout_nr_not)
 
 #    already_visited_nodes = set()
 #    for edge in edge_scores_sorted:

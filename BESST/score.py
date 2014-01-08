@@ -149,12 +149,12 @@ def GiveScoreOnEdges(G, Scaffolds, small_scaffolds, Contigs, param, Information,
                 std_dev_score = min(std_dev / std_dev_d_eq_0, std_dev_d_eq_0 / std_dev) #+ span_score #+ min(n/E_links, E_links/float(n))
             except ZeroDivisionError:
                 std_dev_score = 0
-                sys.stderr.write(str(std_dev) + ' ' + str(std_dev_d_eq_0) + ' ' + str(span_score) + ' ' + str(n) + '\n')
+                # sys.stderr.write(str(std_dev) + ' ' + str(std_dev_d_eq_0) + ' ' + str(span_score) + ' ' + str(n) + '\n')
 
-            #if std_dev_score > param.scorethreshold and span_score > param.scorethreshold:
-            if span_score > param.scorethreshold:
-                #G[edge[0]][edge[1]]['score'] = std_dev_score + span_score
-                G[edge[0]][edge[1]]['score'] = span_score
+            if std_dev_score > param.scorethreshold and span_score > param.scorethreshold:
+            # if span_score > param.scorethreshold:
+                G[edge[0]][edge[1]]['score'] = std_dev_score + span_score
+                # G[edge[0]][edge[1]]['score'] = span_score
             else:
                 G[edge[0]][edge[1]]['score'] = 0
                 print std_dev_score, span_score, n
@@ -178,22 +178,23 @@ def GiveScoreOnEdges(G, Scaffolds, small_scaffolds, Contigs, param, Information,
             try:
                 G[edge[0]][edge[1]]['score']
             except KeyError:
-                sys.stderr.write(str(G[edge[0]][edge[1]]) + ' ' + str(Scaffolds[edge[0][0]].s_length) + ' ' + str(Scaffolds[edge[1][0]].s_length))
+                pass
+                # sys.stderr.write(str(G[edge[0]][edge[1]]) + ' ' + str(Scaffolds[edge[0][0]].s_length) + ' ' + str(Scaffolds[edge[1][0]].s_length))
     print >> Information, 'Number of significantly spurious edges:', cnt_sign
 
-    if param.development:
-        tempout = open(os.path.join(param.output_directory, 'besst_edges.txt'), 'w')
-        for edge in G.edges():
-            if G[edge[0]][edge[1]]['nr_links'] != None:
-                try:
-                    c1 = Scaffolds[edge[0][0]].contigs[0].name
-                except KeyError:
-                    c1 = small_scaffolds[edge[0][0]].contigs[0].name
-                try:
-                    c2 = Scaffolds[edge[1][0]].contigs[0].name
-                except KeyError:
-                    c2 = small_scaffolds[edge[1][0]].contigs[0].name
+    # if param.development:
+    #     tempout = open(os.path.join(param.output_directory, 'besst_edges.txt'), 'w')
+    #     for edge in G.edges():
+    #         if G[edge[0]][edge[1]]['nr_links'] != None:
+    #             try:
+    #                 c1 = Scaffolds[edge[0][0]].contigs[0].name
+    #             except KeyError:
+    #                 c1 = small_scaffolds[edge[0][0]].contigs[0].name
+    #             try:
+    #                 c2 = Scaffolds[edge[1][0]].contigs[0].name
+    #             except KeyError:
+    #                 c2 = small_scaffolds[edge[1][0]].contigs[0].name
 
-                print >> tempout, c1 + '\t' + c2 + '\t' + str(G[edge[0]][edge[1]]['gap']) + '\t' + str(G[edge[0]][edge[1]]['nr_links']) + '\t' + str(G[edge[0]][edge[1]]['score']) + '\t' + str(G[edge[0]][edge[1]]['nr_links'] * G[edge[0]][edge[1]]['score'])
+    #             print >> tempout, c1 + '\t' + c2 + '\t' + str(G[edge[0]][edge[1]]['gap']) + '\t' + str(G[edge[0]][edge[1]]['nr_links']) + '\t' + str(G[edge[0]][edge[1]]['score']) + '\t' + str(G[edge[0]][edge[1]]['nr_links'] * G[edge[0]][edge[1]]['score'])
 
     return()

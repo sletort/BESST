@@ -98,7 +98,11 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
         except ValueError:
             continue
 
-        #TODO:Repeats (and haplotypes) may have been singled out, we need this statement (or a smarter version of it)
+        # if contig1 != contig2:
+        #     if alignedread.is_reverse and alignedread.pos > 5000 or alignedread.mate_is_reverse and alignedread.mpos > 5000:
+        #         if not alignedread.is_unmapped and not alignedread.mate_is_unmapped:
+        #             print bam_file.getrname(alignedread.rname), alignedread.pos, bam_file.getrname(alignedread.mrnm), alignedread.mpos #abs(alignedread.tlen), alignedread.is_proper_pair, alignedread.mapq, alignedread.is_duplicate #, alignedread.pos, alignedread.mpos, alignedread.flag
+        # #TODO:Repeats (and haplotypes) may have been singled out, we need this statement (or a smarter version of it)
         if (contig1 in Contigs or contig1 in small_contigs) and (contig2 in Contigs or contig2 in small_contigs):
             pass
         else:
@@ -228,7 +232,7 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
     score.GiveScoreOnEdges(G, Scaffolds, small_scaffolds, Contigs, param, Information, plot)
 
     #plot = 'G_prime'
-    score.GiveScoreOnEdges(G_prime, Scaffolds, small_scaffolds, Contigs, param, Information, plot)
+    # score.GiveScoreOnEdges(G_prime, Scaffolds, small_scaffolds, Contigs, param, Information, plot)
 
 
     #Remove all edges with link support less than 3 to be able to compute statistics: 

@@ -29,6 +29,7 @@ def read_in_files(args):
         true_graph[contig1][contig2] = int(true_gap)
         #true_graph[contig2] = (contig1, int(true_gap))
 
+    total_edges_in_file = 0
     besst_graph = defaultdict(dict)
     for line in open(args.besst, 'r'):
         #TODO: Create ScoreType objects here, one for each additional column after gap column.
@@ -36,9 +37,10 @@ def read_in_files(args):
         #if contig1
         besst_graph[contig1][contig2] = (int(besst_gap), int(nr_links), float(besst_score), float(weighted))
         besst_graph[contig2][contig1] = (int(besst_gap), int(nr_links), float(besst_score), float(weighted))
+        total_edges_in_file +=1
 
 
-    return(true_graph, besst_graph)
+    return(true_graph, besst_graph, total_edges_in_file)
 
 
 def true_positives(true_graph, besst_graph):
@@ -50,6 +52,7 @@ def true_positives(true_graph, besst_graph):
     # true_negatives is not so important for now at least
     #true_negatives_score = []
     #true_negatives_nr_links = []
+
 
     for contig1 in true_graph:
         if contig1 in besst_graph:
@@ -96,9 +99,9 @@ def false_positives(true_graph, besst_graph):
             if contig2 not in already_visited and tuple(sorted((contig1, contig2))) not in true_edges_set:
                 false_positives_score.append(besst_graph[contig1][contig2][2])
                 false_positives_nr_links.append(besst_graph[contig1][contig2][1])
-                if besst_graph[contig1][contig2][1] > 1:
-                    print besst_graph[contig1][contig2][1]
-                    print tuple(sorted((contig1, contig2))) , besst_graph[contig1]
+                # if besst_graph[contig1][contig2][1] > 1:
+                #     print besst_graph[contig1][contig2][1]
+                #     print tuple(sorted((contig1, contig2))) , besst_graph[contig1]
                 false_positives_weighted.append(besst_graph[contig1][contig2][3])
         already_visited.add(contig1)
 
@@ -136,11 +139,17 @@ if __name__ == '__main__':
     parser.add_argument('truth', type=str, help='Path to the file with true linkings. ')
     parser.add_argument('besst', type=str, help='Path to the file with BESST linkings and scores.')
     parser.add_argument('out', type=str, help='Path to output location for files. ')
+    parser.add_argument("-n", action="store_true",
+                  help="File with edges that are not chosen.")
 
 
     args = parser.parse_args()
 
-    true_graph, besst_graph = read_in_files(args)
+    true_graph, besst_graph, total_edges_in_file = read_in_files(args)
     true_positives_score, true_positives_nr_links, true_positives_weighted = true_positives(true_graph, besst_graph)
     false_positives_score, false_positives_nr_links, false_positives_weighted = false_positives(true_graph, besst_graph)
-    plot(args.out, true_positives_score, true_positives_nr_links, true_positives_weighted, false_positives_score, false_positives_nr_links, false_positives_weighted)
+    if not args.n:
+        print 'TP:', len(true_positives_score), 'FP:', total_edges_in_file - len(true_positives_score)
+    else:
+        print 'TN:', total_edges_in_file - len(true_positives_score), 'FN', len(true_positives_score) 
+    #plot(args.out, true_positives_score, true_positives_nr_links, true_positives_weighted, false_positives_score, false_positives_nr_links, false_positives_weighted)

@@ -14,7 +14,7 @@ def ExpectedLinks(len1, len2, gap_est, k, param):
     #Working good for contigs at the moment (not working good for scaffolds with lots of N's) 
     std_dev = float(param.std_dev_ins_size)
     #We should not expect more links for a negative gap since the negative gap is most likely:
-    # 1) a bad gap estimate 2) a strange haplotypic region 
+    # 1) a bad gap estimate 2) overlapping k-mers from cutting assembly graph 2) a strange haplotypic region 
     # Even if the overlap is correct we should not expect too many links in the overlapping region since part of
     # the PE/MP will map to the same contig so this will create a problem anyway, therefor we count with gap = max(gap_est,0)
     gap = max(gap_est, 0)

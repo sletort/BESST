@@ -81,8 +81,9 @@ def main(options):
     param.multiprocess = options.multiprocess
     param.development = options.devel
     options.output = os.path.join(options.output, 'BESST_output')
+    mkdir_p(options.output)
 
-    filter_contigs.main(options.bamfiles[0], os.path.join(options.output, 'breakpoints.txt'))
+    #filter_contigs.main(options.bamfiles[0], os.path.join(options.output, 'breakpoints.txt'))
 
     mkdir_p(options.output)
     if options.plots:
@@ -270,6 +271,8 @@ other.add_argument("-devel", action="store_true",
 
 other.add_argument("-plots", action="store_true",
                   help="Plot coverage, histograms of scores e.t.c.")
+other.add_argument("-preprocess", action="store_true",
+                  help="Preprocesses the contigs from the assembly by splitting up potentially chimeric contigs and removing potentially false contigs.")
 
 other.add_argument('--version', action='version', version='%(prog)s 1.0.4.2')
 

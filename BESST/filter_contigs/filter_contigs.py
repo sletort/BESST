@@ -47,9 +47,9 @@ def single_out_contigs(infile):
 #
 def main(infile, outfile_):
     bam_file = open_bam_file(infile)
-    #outfile = open(outfile_, 'w')
-    #predict_sv(bam_file, outfile)
-    #outfile.close()
+    outfile = open(outfile_, 'w')
+    predict_sv(bam_file, outfile)
+    outfile.close()
     infile_new = open(outfile_, 'r')
     single_out_contigs(infile_new)
 

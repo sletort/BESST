@@ -32,7 +32,7 @@ class BasePairTracker:
     # @return True if the read is mapped, false otherwise.
     #
     def accept(self, read):
-        if read.rname != read.mrnm or read.is_unmapped or read.mpos <= read.pos:
+        if read.rname != read.mrnm or read.is_unmapped or read.mpos <= read.pos or abs(read.mpos - read.pos) > 6500:
             return False
         else:
             return True
