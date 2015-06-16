@@ -117,7 +117,7 @@ def draw_graph(graph, Contigs, small_contigs, param, graph_layout='spectral',
         node_names.append(node)
         node_colors.append(node_dict[node][0])
         #natural logarithmic scale on sizes
-        node_sizes.append(math.log(node_dict[node][1]/float(smallest_node) +1) * 10)
+        node_sizes.append(math.log(node_dict[node][1]/float(smallest_node) +1) * 20)
 
            
 
