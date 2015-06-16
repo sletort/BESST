@@ -89,7 +89,7 @@ def draw_graph(graph, Contigs, small_contigs, param, graph_layout='spectral',
 
     node_dict = dict(zip(node_names, zip(node_colors, node_sizes)))
     # create a one node per contig graph based on the contig graph
-    for node in node_names:
+    for node in node_names: 
         if len(graph.neighbors((node,'L')) + graph.neighbors((node,'R'))) == 2:
             G.add_node(node)
             continue
@@ -106,14 +106,20 @@ def draw_graph(graph, Contigs, small_contigs, param, graph_layout='spectral',
                     G.add_edge(node, nbr[0] , w=weight)
 
     # sort nodes in node_dict to get same order as in G.nodes()
+    for node in G.nodes():
+        if node_dict[node][1] < 200:
+             G.remove_node(node)
     node_names = []
     node_colors = []
     node_sizes = []
-    for node in G.nodes():
+    print len(G.nodes())
+    for node in G.nodes():        
         node_names.append(node)
         node_colors.append(node_dict[node][0])
         #natural logarithmic scale on sizes
         node_sizes.append(math.log(node_dict[node][1]/float(smallest_node) +1) * 10)
+
+           
 
     print [int(color) for color in node_colors]
     # get edge weights
