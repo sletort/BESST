@@ -245,6 +245,10 @@ def PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaf
     mean_cov, std_dev_cov = CalculateMeanCoverage(Contigs, Information, param)
     param.mean_coverage = mean_cov
     param.std_dev_coverage = std_dev_cov
+
+    if param.graphplot:
+        return(G, G_prime)
+        
     if param.first_lib:
         Contigs, Scaffolds, G = RepeatDetector(Contigs, Scaffolds, G, param, G_prime, small_contigs, small_scaffolds, Information)
 

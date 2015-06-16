@@ -28,6 +28,7 @@ from itertools import izip
 
 from BESST import errorhandle
 from BESST import decide_approach
+from BESST import plots
 
 def mkdir_p(path):
     try:
@@ -107,6 +108,8 @@ def main(options):
 
     param.information_file = open(options.output + '/Statistics.txt', 'w')
     param.plots = options.plots
+    param.graphplot = options.graphplot
+
     Information = param.information_file
     open(options.output + '/haplotypes.fa', 'w')
     #Read in the sequences of the contigs in memory
@@ -168,8 +171,13 @@ def main(options):
             print 'Creating contig graph with library: ', param.bamfile
             start = time()
             (G, G_prime) = CG.PE(Contigs, Scaffolds, Information, C_dict, param, small_contigs, small_scaffolds, bam_file)      #Create graph, single out too short contigs/scaffolds and store them in F
+            
             elapsed = time() - start
             print >> Information, 'Total time for CreateGraph-module, iteration ' + str(i) + ': ' + str(elapsed) + '\n'
+
+            if options.graphplot:
+                plots.draw_graph(G_prime, Contigs, small_contigs, param)
+                sys.exit()
             decide_approach.decide_scaffolding_procedure(Scaffolds,small_scaffolds, param)
 
             if args.devel:
@@ -347,6 +355,9 @@ other.add_argument("-devel", action="store_true",
 other.add_argument("-plots", action="store_true",
                   help="Plot coverage, histograms of scores e.t.c.")
 
+other.add_argument("--graphplot", dest="graphplot", action="store_true",
+                  help="Plots initial contig graph (with first library passed) without performing scaffolding")
+
 other.add_argument("--separate_repeats", dest="separate_repeats", action="store_true",
                   help="Separates contigs classified as repeats by BESST into a file 'repeats.fa'. They are \
                   not included in the main scaffolding output file with this flag specified.")
@@ -388,6 +399,14 @@ if args.plots:
     except ImportError:
         args.plots = False
 
+if args.graphplot:
+    try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print >> sys.stderr, 'Cannot plot graph, matplotlib is not found. Exiting...'
+        sys.exit(1)
 
 ##
 # Call BESST algorithm

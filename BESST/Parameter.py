@@ -41,7 +41,8 @@ class parameter(object):
                  path_gaps_estimated =0, parameter_gap_estimations = [],
                  contamination_mean=None, contamination_stddev = None, contamination_ratio=0,
                  no_score=None, orientation = None, contig_index= None,
-                 score_cutoff = None, max_extensions = None, NO_ILP = None ):
+                 score_cutoff = None, max_extensions = None, NO_ILP = None,
+                 graphplot=None ):
 
 
 
@@ -57,6 +58,7 @@ class parameter(object):
         # Assembly information
         # Algorithm information
         # Output information
+        self.graphplot = graphplot
         self.mean_coverage = parameter_mean_coverage
         self.std_dev_coverage = parameter_std_dev_coverage
         self.output_directory = parameter_output_directory
