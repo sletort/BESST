@@ -69,12 +69,6 @@ def draw_graph(graph, Contigs, small_contigs, param, graph_layout='spectral',
     G=nx.Graph()
     # make a list of node_names for each contig
     node_names = [Contigs[ctg_name].scaffold for ctg_name in Contigs.keys()] + [small_contigs[ctg_name].scaffold for ctg_name in small_contigs.keys()]
-    # nodes = []
-    # added_nodes = set()
-    # for node in G.nodes():
-    #     if node[0] not in added_nodes:
-    #         nodes.append(node[0])
-    #         added_nodes.add(node[0])
 
     # make a list of node sizes based on length of contigs
     node_sizes = [Contigs[ctg_name].length  for ctg_name in Contigs.keys()] + [small_contigs[ctg_name].length for ctg_name in small_contigs.keys()]
@@ -107,7 +101,7 @@ def draw_graph(graph, Contigs, small_contigs, param, graph_layout='spectral',
 
     # sort nodes in node_dict to get same order as in G.nodes()
     for node in G.nodes():
-        if node_dict[node][1] < 200:
+        if node_dict[node][1] < 100:
              G.remove_node(node)
     node_names = []
     node_colors = []
@@ -117,7 +111,7 @@ def draw_graph(graph, Contigs, small_contigs, param, graph_layout='spectral',
         node_names.append(node)
         node_colors.append(node_dict[node][0])
         #natural logarithmic scale on sizes
-        node_sizes.append(math.log(node_dict[node][1]/float(smallest_node) +1) * 20)
+        node_sizes.append(math.log(node_dict[node][1]/float(smallest_node) +1) * 10)
 
            
 
@@ -144,7 +138,7 @@ def draw_graph(graph, Contigs, small_contigs, param, graph_layout='spectral',
     nx.draw_graphviz(G,
          node_size = node_sizes,
          node_color = node_colors,
-         with_labels = False)
+         with_labels = False, vmin=0, vmax=500)
     colorbar()
     # nx.draw_networkx_nodes(G,graph_pos,node_size=node_sizes, 
     #                        alpha=node_alpha, node_color=node_colors)
