@@ -77,8 +77,11 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 		"""Build the list of contig tuples."""
 		l_ctgs = [
 			( 'a', True, 0, 10, 'a'*10 ),
+			# tiny gap
 			( 't', True, 12, 10, 't'*10 ),
+			# empty gap
 			( 't_inv', False, 22, 10, 't'*10 ),
+			# big gap
 			( 'c', True, 45, 10, 'c'*10 )
 		]
 		self.info_file = open( "infos", "w" )
@@ -93,7 +96,7 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 	def test_isScaffold( self ):
 		self.assertIsInstance( self.o_scaff, GO.Scaffold )
 
-	def test_isFasta( self ):
+	def test_Fasta( self ):
 		file = "test1.fasta"
 		with open( file, 'w' ) as o_f:
 			self.o_scaff.make_fasta_string( o_f )
@@ -107,7 +110,7 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 			l_done = f_in.readlines()
 		self.assertListEqual( l_done, l_expected )
 
-	def test_isAgp( self ):
+	def test_Agp( self ):
 		file = "test1.agp"
 		with open( file, 'w' ) as o_f:
 			self.o_scaff.make_AGP_string( o_f )
@@ -125,7 +128,7 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 			l_done = f_in.readlines()
 		self.assertListEqual( l_done, l_expected )
 
-	def test_isGff( self ):
+	def test_Gff( self ):
 		file = "test1.gff"
 		with open( file, 'w' ) as o_f:
 			self.o_scaff.make_GFF_string( o_f )
@@ -143,6 +146,7 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 			l_done = f_in.readlines()
 		self.assertListEqual( l_done, l_expected )
 		#~ self.assertEqual( l_done[1], l_expected[1] )
+
 
 if __name__ == '__main__':
 	unittest.main()
