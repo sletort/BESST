@@ -145,8 +145,71 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 		with open( file ) as f_in:
 			l_done = f_in.readlines()
 		self.assertListEqual( l_done, l_expected )
-		#~ self.assertEqual( l_done[1], l_expected[1] )
 
+class ScaffoldTest_with_overlap( unittest.TestCase ):
+
+	def setUp( self ):
+		"""Build the list of contig tuples."""
+		l_ctgs = [
+			( 'cplx1', False, 0, 40, 'a'*10+'c'*10+'g'*10+'t'*10 )
+			# True overlap of 25 char
+			#	gap is a little shorter
+			,( 'cplx2', True, 16, 40, 'c'*5+'g'*10+'t'*10+'a'*10+'c'*5 ),
+			# True overlap of 10 char
+			#	gap is a little longer
+		]
+		self.info_file = open( "infos", "w" )
+		p = Param( 32, 30, self.info_file )
+		self.scaff_name = "test1"
+		self.o_scaff = GO.Scaffold( self.scaff_name, p, l_ctgs )
+
+	def tearDown( self ):
+		self.info_file.close()
+
+	def test_Fasta( self ):
+		file = "test1.fasta"
+		with open( file, 'w' ) as o_f:
+			self.o_scaff.make_fasta_string( o_f )
+
+		l_expected = [
+			">" + self.scaff_name + "\n",
+			'a'*10+'c'*10+'g'*10+'t'*10
+				+ 'n'
+				+ 'a'*10+'c'*5
+				+ "\n"
+		]
+		with open( file ) as f_in:
+			l_done = f_in.readlines()
+		self.assertListEqual( l_done, l_expected )
+
+	def test_Agp( self ):
+		file = "test1.agp"
+		with open( file, 'w' ) as o_f:
+			self.o_scaff.make_AGP_string( o_f )
+
+		l_expected = [
+			  "\t".join([ str(x) for x in [ self.scaff_name,  1,40, 1, 'W', 'cplx1', 1, 40, '-' ] ]) + "\n"
+			, "\t".join([ str(x) for x in [ self.scaff_name, 41,41, 2, 'N', 1, 'scaffold', 'yes', 'paired-ends' ] ]) + "\n"
+			, "\t".join([ str(x) for x in [ self.scaff_name, 42,56, 3, 'W', 'cplx2', 26, 40, '+' ] ]) + "\n"
+		]
+		with open( file ) as f_in:
+			l_done = f_in.readlines()
+		self.assertListEqual( l_done, l_expected )
+
+	def test_Gff( self ):
+		file = "test1.gff"
+		with open( file, 'w' ) as o_f:
+			self.o_scaff.make_GFF_string( o_f )
+
+		l_expected = [
+			  "\t".join([ self.scaff_name, "besst_assembly", 'contig', '1','40', '.', '-', '.', "ID={0};Name={0}".format( 'cplx1' ) ]) + "\n"
+			, "\t".join([ self.scaff_name, "besst_assembly", 'gap', '41','41', '.', '.', '.', "" ]) + "\n"
+			, "\t".join([ self.scaff_name, "besst_assembly", 'contig', '42','56', '.', '+', '.', "ID={0};Name={0}".format( 'cplx2' ) ]) + "\n"
+		]
+		with open( file ) as f_in:
+			l_done = f_in.readlines()
+		self.assertListEqual( l_done, l_expected )
+		#~ self.assertEqual( l_done[1], l_expected[1] )
 
 if __name__ == '__main__':
 	unittest.main()
