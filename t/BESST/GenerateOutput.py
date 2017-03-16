@@ -154,9 +154,10 @@ class ScaffoldTest_with_overlap( unittest.TestCase ):
 			( 'cplx1', False, 0, 40, 'a'*10+'c'*10+'g'*10+'t'*10 )
 			# True overlap of 25 char
 			#	gap is a little shorter
-			,( 'cplx2', True, 16, 40, 'c'*5+'g'*10+'t'*10+'a'*10+'c'*5 ),
-			# True overlap of 10 char
+			,( 'cplx2', True, 16, 40, 'c'*5+'g'*10+'t'*10+'a'*10+'c'*5 )
+			# True overlap of 25 char
 			#	gap is a little longer
+			,( 'cplx3', True, 27, 40, 't'*10+'a'*10+'c'*10+'g'*10 )
 		]
 		self.info_file = open( "infos", "w" )
 		p = Param( 32, 30, self.info_file )
@@ -176,6 +177,8 @@ class ScaffoldTest_with_overlap( unittest.TestCase ):
 			'a'*10+'c'*10+'g'*10+'t'*10
 				+ 'n'
 				+ 'a'*10+'c'*5
+				+ 'n'
+				+ 'c'*5+'g'*10
 				+ "\n"
 		]
 		with open( file ) as f_in:
@@ -191,6 +194,8 @@ class ScaffoldTest_with_overlap( unittest.TestCase ):
 			  "\t".join([ str(x) for x in [ self.scaff_name,  1,40, 1, 'W', 'cplx1', 1, 40, '-' ] ]) + "\n"
 			, "\t".join([ str(x) for x in [ self.scaff_name, 41,41, 2, 'N', 1, 'scaffold', 'yes', 'paired-ends' ] ]) + "\n"
 			, "\t".join([ str(x) for x in [ self.scaff_name, 42,56, 3, 'W', 'cplx2', 26, 40, '+' ] ]) + "\n"
+			, "\t".join([ str(x) for x in [ self.scaff_name, 57,57, 4, 'N', 1, 'scaffold', 'yes', 'paired-ends' ] ]) + "\n"
+			, "\t".join([ str(x) for x in [ self.scaff_name, 58,72, 5, 'W', 'cplx3', 26, 40, '+' ] ]) + "\n"
 		]
 		with open( file ) as f_in:
 			l_done = f_in.readlines()
@@ -205,11 +210,12 @@ class ScaffoldTest_with_overlap( unittest.TestCase ):
 			  "\t".join([ self.scaff_name, "besst_assembly", 'contig', '1','40', '.', '-', '.', "ID={0};Name={0}".format( 'cplx1' ) ]) + "\n"
 			, "\t".join([ self.scaff_name, "besst_assembly", 'gap', '41','41', '.', '.', '.', "" ]) + "\n"
 			, "\t".join([ self.scaff_name, "besst_assembly", 'contig', '42','56', '.', '+', '.', "ID={0};Name={0}".format( 'cplx2' ) ]) + "\n"
+			, "\t".join([ self.scaff_name, "besst_assembly", 'gap', '57','57', '.', '.', '.', "" ]) + "\n"
+			, "\t".join([ self.scaff_name, "besst_assembly", 'contig', '58','72', '.', '+', '.', "ID={0};Name={0}".format( 'cplx3' ) ]) + "\n"
 		]
 		with open( file ) as f_in:
 			l_done = f_in.readlines()
 		self.assertListEqual( l_done, l_expected )
-		#~ self.assertEqual( l_done[1], l_expected[1] )
 
 if __name__ == '__main__':
 	unittest.main()
