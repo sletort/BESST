@@ -113,13 +113,13 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 			self.o_scaff.make_AGP_string( o_f )
 
 		l_expected = [
-			"\t".join([ str(x) for x in [ self.scaff_name, 1,10, 1, 'W', 'a', 1, 10, '+' ] ]) + "\n",
+			"\t".join([ str(x) for x in [ self.scaff_name,  1,10, 1, 'W', 'a', 1, 10, '+' ] ]) + "\n",
 			"\t".join([ str(x) for x in [ self.scaff_name, 11,12, 2, 'N', 2, 'scaffold', 'yes', 'paired-ends' ] ]) + "\n",
 			"\t".join([ str(x) for x in [ self.scaff_name, 13,22, 3, 'W', 't', 1, 10, '+' ] ]) + "\n",
 			"\t".join([ str(x) for x in [ self.scaff_name, 23,23, 4, 'N', 1, 'scaffold', 'yes', 'paired-ends' ] ]) + "\n",
-			"\t".join([ str(x) for x in [ self.scaff_name, 24,33, 5, 'W', 't_inv', 1, 10, '2' ] ]) + "\n",
+			"\t".join([ str(x) for x in [ self.scaff_name, 24,33, 5, 'W', 't_inv', 1, 10, '-' ] ]) + "\n",
 			"\t".join([ str(x) for x in [ self.scaff_name, 34,46, 6, 'N', 13, 'scaffold', 'yes', 'paired-ends' ] ]) + "\n",
-			"\t".join([ str(x) for x in [ self.scaff_name, 47,56, 7, 'W', 'c', 1, 10, '2' ] ]) + "\n"
+			"\t".join([ str(x) for x in [ self.scaff_name, 47,56, 7, 'W', 'c', 1, 10, '+' ] ]) + "\n"
 		]
 		with open( file ) as f_in:
 			l_done = f_in.readlines()
@@ -137,7 +137,7 @@ class ScaffoldTest_without_overlap( unittest.TestCase ):
 			"\t".join([ self.scaff_name, "besst_assembly", 'gap', '23','23', '.', '.', '.', "" ]) + "\n",
 			"\t".join([ self.scaff_name, "besst_assembly", 'contig', '24','33', '.', '-', '.', "ID={0};Name={0}".format( 't_inv' ) ]) + "\n",
 			"\t".join([ self.scaff_name, "besst_assembly", 'gap', '34','46', '.', '.', '.', "" ]) + "\n",
-			"\t".join([ self.scaff_name, "besst_assembly", 'contig', '46','56', '.', '+', '.', "ID={0};Name={0}".format( 'c' ) ]) + "\n"
+			"\t".join([ self.scaff_name, "besst_assembly", 'contig', '47','56', '.', '+', '.', "ID={0};Name={0}".format( 'c' ) ]) + "\n"
 		]
 		with open( file ) as f_in:
 			l_done = f_in.readlines()
