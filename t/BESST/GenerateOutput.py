@@ -30,26 +30,6 @@ cur_file = os.path.realpath( getsourcefile( lambda:0 ) )
 sys.path.insert( 0, os.path.dirname( cur_file ) + '/../../BESST' )
 
 # ---------------------------------------
-def GenerateContig( name, pos, l_ctg_len_range ):
-	direction = random.choice( [ True,False ] )
-	length    = random.randrange( *l_ctg_len_range )
-	return ( name, direction, pos, length, "" )
-
-def GenerateScaffold( n, l_ctg_len_range, l_gap_stat ):
-	l_scaff = []
-
-	l_gaps  = [ int( random.gauss( *l_gap_stat ) ) for i in range( n-1 ) ]
-
-	pos = 1
-	for i in range( n-1 ):
-		l_scaff.append( GenerateContig( i+1, pos, l_ctg_len_range ) )
-		pos += l_scaff[-1][3] + l_gaps[i] # pos = pos + ctg_len + gap
-
-	# dernier scaff
-	l_scaff.append( GenerateContig( n, pos, l_ctg_len_range ) )
-
-	return l_scaff
-
 class Param( object ):
 	def __init__( self, std_dev, max_overlap, info_file ):
 		self.std_dev_ins_size   = std_dev
@@ -57,17 +37,6 @@ class Param( object ):
 		self.information_file   = info_file
 
 # ---------------------------------------
-
-#~ class GenerateOutputTest( unittest.TestCase ):
-
-	#~ def setUp( self ):
-		#~ """Define the environnement mandatory for a test."""
-
-	#~ def tearDown( self ):
-		#~ """Destroy the environnement set in setUp method."""
-
-	#~ def test_PrintOutput( self ):
-		#~ """?"""
 
 import GenerateOutput as GO
 
